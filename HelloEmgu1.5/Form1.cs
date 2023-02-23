@@ -11,18 +11,29 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO.Ports;
+using System.Runtime.InteropServices;
 
 namespace HelloEmgu1._5
 {
+
+
+
     public partial class Form1 : Form
     {
+
 
         private VideoCapture _capture;
         private Thread _captureThread;
         private int _threshold = 155;
-        int hMin, sMin, vMin,hMin2,sMin2,vMin2 = 0;
-        int sMax, vMax,sMax2,vMax2 = 255;
+        int hMin, sMin, vMin, hMin2, sMin2, vMin2 = 0;
+        int sMax, vMax, sMax2, vMax2 = 255;
         int hMax, hMax2 = 179;
+
+  
+
+
+
 
         public Form1()
         {
@@ -31,17 +42,24 @@ namespace HelloEmgu1._5
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _capture = new VideoCapture(0);// changing the arg to a different number will change the video signal. 
+            _capture = new VideoCapture(1);// changing the arg to a different number will change the video signal. 
             _captureThread = new Thread(Displaywebcam);
             _captureThread.Start();
         }
 
+  
 
 
         private void Displaywebcam()
         {
             while (_capture.IsOpened)
             {
+                //opening serial port 
+                //SerialPort port = new SerialPort("COM12", 9600, Parity.None, 8, StopBits.One);
+                //port.Open();
+
+
+
                 //frame maint
                 Mat frame = _capture.QueryFrame();
                 //resize
@@ -54,7 +72,10 @@ namespace HelloEmgu1._5
 
                 frame = ThresholdCreater(frame);
                 BinaryPictureBox.Image = frame.ToBitmap();
-                Slicing(frame, binaryImageOL, binaryImageIL, binaryImageCent, binaryImageIR, binaryImageOR);
+                var whitePixBinary = Slicing(frame, binaryImageOL, binaryImageIL, binaryImageCent, binaryImageIR, binaryImageOR);
+
+                //Tuple data struct for state logic
+                var BinaryPix = (OL: whitePixBinary.Item1, IL: whitePixBinary.Item2, Cent: whitePixBinary.Item3, IR: whitePixBinary.Item4, OR: whitePixBinary.Item5);
 
                 //Creating HSV Channels
                 Mat[] hsvChannels = hsvFrame.Split();
@@ -80,8 +101,11 @@ namespace HelloEmgu1._5
                 mergedImage = ErosionThenDilation(mergedImage);
 
                 Invoke(new Action(() => { mergedPictureBox.Image = mergedImage.ToBitmap(); }));
-                Slicing(mergedImage, mergedImageOL, mergedImageIL, mergedImageCent, mergedImageIR, mergedImageOR);
-//*****************************************END OF FIRST MERG********************************************//
+                var whitePixYellowLine = Slicing(mergedImage, mergedImageOL, mergedImageIL, mergedImageCent, mergedImageIR, mergedImageOR);
+
+                //Tuple data struct for state logic
+                var yellowLinePix = (OL: whitePixYellowLine.Item1, IL: whitePixYellowLine.Item2, Cent: whitePixYellowLine.Item3, IR: whitePixYellowLine.Item4, OR: whitePixYellowLine.Item5);
+                //*****************************************END OF FIRST MERG********************************************//
 
                 //*****************************************BEGIN OF SECOND MERG********************************************//
                 Mat hueFilter2 = new Mat();
@@ -104,9 +128,27 @@ namespace HelloEmgu1._5
                 mergedImage2 = ErosionThenDilation(mergedImage2);
 
                 Invoke(new Action(() => { mergedPictureBox2.Image = mergedImage2.ToBitmap(); }));
-                Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
+                var whitePixRedLine = Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
+
+                //Tuple data struct for state logic
+                var redLinePix = (OL: whitePixRedLine.Item1 , IL: whitePixRedLine.Item2, Cent: whitePixRedLine.Item3, IR: whitePixRedLine.Item4, OR: whitePixRedLine.Item5);
 
                 //*****************************************END OF SECOND MERG********************************************//
+
+                //***************************************************************State change logic *******************************************//
+
+
+                //if (redLinePix.OL == 0)
+                //{
+
+                //    port.Write("a");
+
+                //}
+
+
+
+                //closing serial port
+                //port.Close();
             }
 
         }
@@ -166,8 +208,6 @@ namespace HelloEmgu1._5
             sMin2 = sTrackBarMin2.Value;
             sMinLabel2.Text = $"{sMin2}";
         }
-
-
 
         private void sTrackBarMax2_Scroll(object sender, EventArgs e)
         {
@@ -229,16 +269,18 @@ namespace HelloEmgu1._5
             return Frame;
         }
 
-        private void Slicing(Mat inputFrame, Label OL, Label IL, Label Cent, Label IR, Label OR)
+        private Tuple<int, int, int,int,int> Slicing(Mat inputFrame, Label OL, Label IL, Label Cent, Label IR, Label OR)
         {
             Mat frame = inputFrame.Clone();
 
             //count the number of white pixels
-            int whitePixelsExtendedOutterLeft = 0;
-            int whitePixelsExtendedInnerLeft = 0;
-            int whitePixelsExtendedCent = 0;
-            int whitePixelsExtendedInnerRight = 0;
-            int whitePixelsExtendedOutterRight = 0;
+            int whitePixOL = 0;
+            int whitePixIL = 0;
+            int whitePixCent = 0;
+            int whitePixIR = 0;
+            int whitePixOR = 0;
+
+            var whitePixCount = Tuple.Create( whitePixOL, whitePixIL, whitePixCent, whitePixIR, whitePixOR) ;
 
             Image<Gray, byte> img = frame.ToImage<Gray, byte>();
 
@@ -247,7 +289,8 @@ namespace HelloEmgu1._5
             {
                 for (int y = 0; y < frame.Height; y++)
                 {
-                    if (img.Data[y, x, 0] == 255) whitePixelsExtendedOutterLeft++;
+                    if (img.Data[y, x, 0] == 255) whitePixOL++;
+
                 }
             }
             //Calculates the inner left slice
@@ -255,7 +298,7 @@ namespace HelloEmgu1._5
             {
                 for (int y = 0; y < frame.Height; y++)
                 {
-                    if (img.Data[y, x, 0] == 255) whitePixelsExtendedInnerLeft++;
+                    if (img.Data[y, x, 0] == 255) whitePixIL++;
                 }
             }
             //Calculates the center slice
@@ -263,7 +306,7 @@ namespace HelloEmgu1._5
             {
                 for (int y = 0; y < frame.Height; y++)
                 {
-                    if (img.Data[y, x, 0] == 255) whitePixelsExtendedCent++;
+                    if (img.Data[y, x, 0] == 255) whitePixCent++;
                 }
             }
             //Calculates the inner right slice
@@ -271,7 +314,7 @@ namespace HelloEmgu1._5
             {
                 for (int y = 0; y < frame.Height; y++)
                 {
-                    if (img.Data[y, x, 0] == 255) whitePixelsExtendedInnerRight++;
+                    if (img.Data[y, x, 0] == 255) whitePixIR++;
                 }
             }
             //Calculates the outter right slice
@@ -279,19 +322,26 @@ namespace HelloEmgu1._5
             {
                 for (int y = 0; y < frame.Height; y++)
                 {
-                    if (img.Data[y, x, 0] == 255) whitePixelsExtendedOutterRight++;
+                    if (img.Data[y, x, 0] == 255) whitePixOR++;
                 }
             }
+
+
 
             //displays their respective white pixel count to form1
             Invoke(new Action(() =>
             {
-                OL.Text = $"{whitePixelsExtendedOutterLeft}";
-                IL.Text = $"{whitePixelsExtendedInnerLeft}";
-                Cent.Text = $"{whitePixelsExtendedCent}";
-                IR.Text = $"{whitePixelsExtendedInnerRight}";
-                OR.Text = $"{whitePixelsExtendedOutterRight}";
+                OL.Text = $"{whitePixOL}";
+                IL.Text = $"{whitePixIL}";
+                Cent.Text = $"{whitePixCent}";
+                IR.Text = $"{whitePixIR}";
+                OR.Text = $"{whitePixOR}";
             }));
+
+
+
+            return whitePixCount;
+
         }
 
 //*****************************************FUNCTIONS END********************************************//
