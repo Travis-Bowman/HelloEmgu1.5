@@ -14,11 +14,9 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
 
+
 namespace HelloEmgu1._5
 {
-
-
-
     public partial class Form1 : Form
     {
 
@@ -43,18 +41,21 @@ namespace HelloEmgu1._5
             _captureThread.Start();
 
             robot = new Robot("COM12");
+            
+            
         }
-
-
-
 
         private void Displaywebcam()
         {
-            //SerialPort port = new SerialPort("COM12", 9600, Parity.None, 8, StopBits.One);
-            //port.Open();
+
+
+           
+          
 
             while (_capture.IsOpened)
             {
+
+
 
                 //frame maint
                 Mat frame = _capture.QueryFrame();
@@ -129,33 +130,54 @@ namespace HelloEmgu1._5
 
                 //***************************************************************State change logic *******************************************//
 
-               // port.Write("S");
-               robot.Move('s');
+
+
+
 
                 //if ((binaryLine.OL > binaryLine.IL || binaryLine.OR > binaryLine.IR) && (yellowLine.Cent > yellowLine.IL || yellowLine.Cent > yellowLine.IR))
                 //{
-                //    Go Stright(Left motor fwd, Right motor fwd)
-                //    robot.Move("F");
+                //    //Go Stright(Left motor fwd, Right motor fwd)
+                //    robot.Move('F');
                 //}
                 //else if ((binaryLine.OL < binaryLine.IL || binaryLine.OR > binaryLine.IR) && (yellowLine.Cent < yellowLine.IR))
                 //{
-                //    Turn left(left motor fwd, right motor slower)
-                //    robot.Move("L");
+                //    //Turn left(left motor fwd, right motor slower)
+                //    robot.Move('L');
                 //}
                 //else if ((binaryLine.OL > binaryLine.IL || binaryLine.OR < binaryLine.IR) && (yellowLine.Cent < yellowLine.IL))
                 //{
-                //    turn right(left motor slower, right motor fwd)
-                //    robot.Move("R");
-                //}
-                //else
-                //{
-                //    robot.Move("S");
+                //    //turn right(left motor slower, right motor fwd)
+                //    robot.Move('R');
                 //}
 
+            
 
-               
-               // port.Close();
+                
+
+                if (yellowLine.Cent > yellowLine.IL && yellowLine.Cent > yellowLine.IR)
+                {
+                    //Go Stright(Left motor fwd, Right motor fwd)
+
+                    Thread.Sleep(100);// pausing the thread by 100 ms.
+                    robot.Move('F');
+
+                }
+                else
+                {
+                    Thread.Sleep(100);// pausing the thread by 100 ms.
+                    robot.Move('S'); ;
+                }
+
+                
+                
+                    
+                
+                
+
+
             }
+
+             
 
         }
 
@@ -280,13 +302,6 @@ namespace HelloEmgu1._5
             //count the number of white pixels
             var counts = new PixCount();
 
-            //int whitePixOL = 0;
-            //int whitePixIL = 0;
-            //int whitePixCent = 0;
-            //int whitePixIR = 0;
-            //int whitePixOR = 0;
-
-
             Image<Gray, byte> img = frame.ToImage<Gray, byte>();
 
             //Calculates the outter left slice
@@ -349,7 +364,7 @@ namespace HelloEmgu1._5
 
         }
 
-        //*****************************************FUNCTIONS END********************************************//
+        //*****************************************FUNCTIONS/CLASSES END********************************************//
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -367,6 +382,9 @@ namespace HelloEmgu1._5
 
 
         }
+
+
+
     }
 
 }

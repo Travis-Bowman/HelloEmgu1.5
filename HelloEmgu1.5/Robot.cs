@@ -28,10 +28,10 @@ namespace HelloEmgu1._5
             try
             {
                 _serialPort = new SerialPort(port);
-                _serialPort.BaudRate = 2400;
+                _serialPort.BaudRate = 9600;
                 _serialPort.DataBits = 8;
                 _serialPort.Parity = Parity.None;
-                _serialPort.StopBits = StopBits.Two;
+                _serialPort.StopBits = StopBits.One;
                 _serialPort.Open();
                 Online = true;
             }
@@ -47,7 +47,7 @@ namespace HelloEmgu1._5
             {
                 if (Online)
                 {
-                    byte[] buffer = { Convert.ToByte(command) };
+                   byte[] buffer = { Convert.ToByte(command) };
                     _serialPort.Write(buffer,0,1);
                 }
             }
@@ -61,6 +61,8 @@ namespace HelloEmgu1._5
         {
             _serialPort.Close();
         }
+
+
 
     }
 }
