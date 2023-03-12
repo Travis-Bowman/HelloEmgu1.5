@@ -19,15 +19,15 @@ namespace HelloEmgu1._5
 {
     public partial class Form1 : Form
     {
-
+        //*********veriables**********\\
         private VideoCapture _capture;
         private Thread _captureThread;
+        private Robot robot;// serial control classusing robot.cs file 
         private int _threshold = 155;
-        int hMin, sMin, vMin, hMin2, sMin2, vMin2 = 0;
-        int sMax, vMax, sMax2, vMax2 = 255;
-        int hMax, hMax2 = 179;
+        int hMin, sMin, vMin, hMin2, sMin2, vMin2 = 0; // setting the min values of saturation, value, and hue
+        int sMax, vMax, sMax2, vMax2 = 255; // setting the max values of saturation, and value.
+        int hMax, hMax2 = 179;// setting the min values of  hue
 
-        private Robot robot;
 
         public Form1()
         {
@@ -48,9 +48,6 @@ namespace HelloEmgu1._5
         private void Displaywebcam()
         {
 
-
-           
-          
 
             while (_capture.IsOpened)
             {
@@ -150,10 +147,6 @@ namespace HelloEmgu1._5
                 //    robot.Move('R');
                 //}
 
-            
-
-                
-
                 if (yellowLine.Cent > yellowLine.IL && yellowLine.Cent > yellowLine.IR)
                 {
                     //Go Stright(Left motor fwd, Right motor fwd)
@@ -168,16 +161,7 @@ namespace HelloEmgu1._5
                     robot.Move('S'); ;
                 }
 
-                
-                
-                    
-                
-                
-
-
             }
-
-             
 
         }
 
@@ -371,6 +355,7 @@ namespace HelloEmgu1._5
             _captureThread.Abort();
         }
 
+        //PixCount class is uses to organized the pixcount of the slices.
         public class PixCount
         {
 
