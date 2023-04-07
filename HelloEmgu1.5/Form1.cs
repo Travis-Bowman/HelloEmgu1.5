@@ -124,28 +124,6 @@ namespace HelloEmgu1._5
 
                 //***************************************************************State change logic *******************************************//
 
-
-
-
-
-                //if ((binaryLine.OL > binaryLine.IL || binaryLine.OR > binaryLine.IR) && (yellowLine.Cent > yellowLine.IL || yellowLine.Cent > yellowLine.IR))
-                //{
-                //    //Go Stright(Left motor fwd, Right motor fwd)
-                //    robot.Move('F');
-                //}
-                //else if ((binaryLine.OL < binaryLine.IL || binaryLine.OR > binaryLine.IR) && (yellowLine.Cent < yellowLine.IR))
-                //{
-                //    //Turn left(left motor fwd, right motor slower)
-                //    robot.Move('L');
-                //}
-                //else if ((binaryLine.OL > binaryLine.IL || binaryLine.OR < binaryLine.IR) && (yellowLine.Cent < yellowLine.IL))
-                //{
-                //    //turn right(left motor slower, right motor fwd)
-                //    robot.Move('R');
-                //}
-
-                //yellowLine.Cent > yellowLine.IL && yellowLine.Cent > yellowLine.IR
-
                 if (runFlag)
                 {
 
