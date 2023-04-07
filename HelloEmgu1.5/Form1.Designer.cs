@@ -410,6 +410,8 @@
             this.startButton.TabIndex = 32;
             this.startButton.Text = "START";
             this.startButton.UseVisualStyleBackColor = false;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
+ 
             // 
             // stopButton
             // 
@@ -420,6 +422,7 @@
             this.stopButton.TabIndex = 33;
             this.stopButton.Text = "STOP";
             this.stopButton.UseVisualStyleBackColor = false;
+            this.stopButton.Click += new System.EventHandler(this.stopButton_Click);
             // 
             // label12
             // 

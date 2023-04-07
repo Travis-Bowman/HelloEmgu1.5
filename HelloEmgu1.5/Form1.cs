@@ -27,7 +27,7 @@ namespace HelloEmgu1._5
         int hMin, sMin, vMin, hMin2, sMin2, vMin2 = 0; // setting the min values of saturation, value, and hue
         int sMax, vMax, sMax2, vMax2 = 255; // setting the max values of saturation, and value.
         int hMax, hMax2 = 179;// setting the min values of  hue
-
+        bool runFlag = false;
 
         public Form1()
         {
@@ -39,89 +39,86 @@ namespace HelloEmgu1._5
             _capture = new VideoCapture(0);// changing the arg to a different number will change the video signal. 
             _captureThread = new Thread(Displaywebcam);
             _captureThread.Start();
+            
 
-            robot = new Robot("COM12");
-            
-            
+            robot = new Robot("COM4");
         }
 
         private void Displaywebcam()
         {
+           
+
+             while (_capture.IsOpened)
+             {
+
+                    //frame maint
+                    Mat frame = _capture.QueryFrame();
+                    //resize
+                    frame = ResizeFrame(frame);
+                    //display the image in the pichtureBox
+                    emguPictureBox.Image = frame.ToBitmap();
+                    //Creating HSV frame
+                    Mat hsvFrame = new Mat();
+                    CvInvoke.CvtColor(frame, hsvFrame, Emgu.CV.CvEnum.ColorConversion.Bgr2Hsv);
+
+                    frame = DilationThenErosion(frame);
+                    frame = ErosionThenDilation(frame);
+
+                    frame = ThresholdCreater(frame);
+                    BinaryPictureBox.Image = frame.ToBitmap();
+                    var binaryLine = Slicing(frame, binaryImageOL, binaryImageIL, binaryImageCent, binaryImageIR, binaryImageOR);
+
+                    //Creating HSV Channels
+                    Mat[] hsvChannels = hsvFrame.Split();
+
+                    //*****************************************BEGIN OF FIRST MERG********************************************//
+                    Mat hueFilter = new Mat();
+                    CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin), new ScalarArray(hMax), hueFilter);
+                    Invoke(new Action(() => { hPictureBox.Image = hueFilter.ToBitmap(); }));
+
+                    Mat saturationFilter = new Mat();
+                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin), new ScalarArray(sMax), saturationFilter);
+                    Invoke(new Action(() => { sPictureBox.Image = saturationFilter.ToBitmap(); }));
+
+                    Mat valueFilter = new Mat();
+                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin), new ScalarArray(vMax), valueFilter);
+                    Invoke(new Action(() => { vPictureBox.Image = valueFilter.ToBitmap(); }));
+
+                    Mat mergedImage = new Mat();
+                    CvInvoke.BitwiseAnd(hueFilter, saturationFilter, mergedImage);
+                    CvInvoke.BitwiseAnd(mergedImage, valueFilter, mergedImage);
+
+                    mergedImage = DilationThenErosion(mergedImage);
+                    mergedImage = ErosionThenDilation(mergedImage);
+
+                    Invoke(new Action(() => { mergedPictureBox.Image = mergedImage.ToBitmap(); }));
+                    var yellowLine = Slicing(mergedImage, mergedImageOL, mergedImageIL, mergedImageCent, mergedImageIR, mergedImageOR);
 
 
-            while (_capture.IsOpened)
-            {
+                    //*****************************************END OF FIRST MERG********************************************//
 
+                    //*****************************************BEGIN OF SECOND MERG********************************************//
+                    Mat hueFilter2 = new Mat();
+                    CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin2), new ScalarArray(hMax2), hueFilter2);
+                    Invoke(new Action(() => { hPictureBox2.Image = hueFilter2.ToBitmap(); }));
 
+                    Mat saturationFilter2 = new Mat();
+                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin2), new ScalarArray(sMax2), saturationFilter2);
+                    Invoke(new Action(() => { sPictureBox2.Image = saturationFilter2.ToBitmap(); }));
 
-                //frame maint
-                Mat frame = _capture.QueryFrame();
-                //resize
-                frame = ResizeFrame(frame);
-                //display the image in the pichtureBox
-                emguPictureBox.Image = frame.ToBitmap();
-                //Creating HSV frame
-                Mat hsvFrame = new Mat();
-                CvInvoke.CvtColor(frame, hsvFrame, Emgu.CV.CvEnum.ColorConversion.Bgr2Hsv);
+                    Mat valueFilter2 = new Mat();
+                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin2), new ScalarArray(vMax2), valueFilter2);
+                    Invoke(new Action(() => { vPictureBox2.Image = valueFilter2.ToBitmap(); }));
 
-                frame = DilationThenErosion(frame);
-                frame = ErosionThenDilation(frame);
+                    Mat mergedImage2 = new Mat();
+                    CvInvoke.BitwiseAnd(hueFilter2, saturationFilter2, mergedImage2);
+                    CvInvoke.BitwiseAnd(mergedImage2, valueFilter2, mergedImage2);
 
-                frame = ThresholdCreater(frame);
-                BinaryPictureBox.Image = frame.ToBitmap();
-                var binaryLine = Slicing(frame, binaryImageOL, binaryImageIL, binaryImageCent, binaryImageIR, binaryImageOR);
+                    mergedImage2 = DilationThenErosion(mergedImage2);
+                    mergedImage2 = ErosionThenDilation(mergedImage2);
 
-                //Creating HSV Channels
-                Mat[] hsvChannels = hsvFrame.Split();
-
-                //*****************************************BEGIN OF FIRST MERG********************************************//
-                Mat hueFilter = new Mat();
-                CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin), new ScalarArray(hMax), hueFilter);
-                Invoke(new Action(() => { hPictureBox.Image = hueFilter.ToBitmap(); }));
-
-                Mat saturationFilter = new Mat();
-                CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin), new ScalarArray(sMax), saturationFilter);
-                Invoke(new Action(() => { sPictureBox.Image = saturationFilter.ToBitmap(); }));
-
-                Mat valueFilter = new Mat();
-                CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin), new ScalarArray(vMax), valueFilter);
-                Invoke(new Action(() => { vPictureBox.Image = valueFilter.ToBitmap(); }));
-
-                Mat mergedImage = new Mat();
-                CvInvoke.BitwiseAnd(hueFilter, saturationFilter, mergedImage);
-                CvInvoke.BitwiseAnd(mergedImage, valueFilter, mergedImage);
-
-                mergedImage = DilationThenErosion(mergedImage);
-                mergedImage = ErosionThenDilation(mergedImage);
-
-                Invoke(new Action(() => { mergedPictureBox.Image = mergedImage.ToBitmap(); }));
-                var yellowLine = Slicing(mergedImage, mergedImageOL, mergedImageIL, mergedImageCent, mergedImageIR, mergedImageOR);
-
-
-                //*****************************************END OF FIRST MERG********************************************//
-
-                //*****************************************BEGIN OF SECOND MERG********************************************//
-                Mat hueFilter2 = new Mat();
-                CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin2), new ScalarArray(hMax2), hueFilter2);
-                Invoke(new Action(() => { hPictureBox2.Image = hueFilter2.ToBitmap(); }));
-
-                Mat saturationFilter2 = new Mat();
-                CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin2), new ScalarArray(sMax2), saturationFilter2);
-                Invoke(new Action(() => { sPictureBox2.Image = saturationFilter2.ToBitmap(); }));
-
-                Mat valueFilter2 = new Mat();
-                CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin2), new ScalarArray(vMax2), valueFilter2);
-                Invoke(new Action(() => { vPictureBox2.Image = valueFilter2.ToBitmap(); }));
-
-                Mat mergedImage2 = new Mat();
-                CvInvoke.BitwiseAnd(hueFilter2, saturationFilter2, mergedImage2);
-                CvInvoke.BitwiseAnd(mergedImage2, valueFilter2, mergedImage2);
-
-                mergedImage2 = DilationThenErosion(mergedImage2);
-                mergedImage2 = ErosionThenDilation(mergedImage2);
-
-                Invoke(new Action(() => { mergedPictureBox2.Image = mergedImage2.ToBitmap(); }));
-                var redLine = Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
+                    Invoke(new Action(() => { mergedPictureBox2.Image = mergedImage2.ToBitmap(); }));
+                    var redLine = Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
 
                 //*****************************************END OF SECOND MERG********************************************//
 
@@ -147,21 +144,43 @@ namespace HelloEmgu1._5
                 //    robot.Move('R');
                 //}
 
-                if (yellowLine.Cent > yellowLine.IL && yellowLine.Cent > yellowLine.IR)
+                //yellowLine.Cent > yellowLine.IL && yellowLine.Cent > yellowLine.IR
+
+                if (runFlag)
                 {
-                    //Go Stright(Left motor fwd, Right motor fwd)
 
-                    Thread.Sleep(100);// pausing the thread by 100 ms.
-                    robot.Move('F');
-
+                    if (yellowLine.Cent >= yellowLine.IL && yellowLine.Cent >= yellowLine.IR)
+                    {
+                        //Thread.Sleep(100);// pausing the thread by 100 ms.
+                        robot.Move('W');// Slow forward
+                    }
+                    else if(yellowLine.Cent <= yellowLine.IL)
+                    {
+                        robot.Move('R');//soft right
+                    }
+                    else if(yellowLine.Cent <= yellowLine.IR)
+                    {
+                        robot.Move('L'); //soft left
+                    }
+                    else if(yellowLine.OL >= yellowLine.IL)
+                    {
+                        robot.Move('H');//Hard Right
+                    }
+                    else if (yellowLine.OR >= yellowLine.IR)
+                    {
+                        robot.Move('T');//Hard Left
+                    }
+                    else if(redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
+                    {
+                        robot.Move('S');//Stop
+                    }
                 }
-                else
-                {
-                    Thread.Sleep(100);// pausing the thread by 100 ms.
-                    robot.Move('S'); ;
-                }
+                else robot.Move('S');
 
-            }
+
+             }
+
+            
 
         }
 
@@ -234,6 +253,16 @@ namespace HelloEmgu1._5
         {
             vMax2 = vTrackBarMax2.Value;
             vMaxLabel2.Text = $"{vMax2}";
+        }
+
+        //*****************START STOP ************************************//
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            runFlag = true;
+        }
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            runFlag = false;
         }
 
         //*****************************************FUNCTIONS BENGIN********************************************//
@@ -352,7 +381,10 @@ namespace HelloEmgu1._5
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            robot.Move('S');
+           
             _captureThread.Abort();
+            
         }
 
         //PixCount class is uses to organized the pixcount of the slices.
@@ -367,9 +399,6 @@ namespace HelloEmgu1._5
 
 
         }
-
-
-
     }
 
 }
