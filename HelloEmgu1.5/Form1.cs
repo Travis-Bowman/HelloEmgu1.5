@@ -13,6 +13,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
+using System.IO;
+using static System.Net.Mime.MediaTypeNames;
+using Emgu.CV.Features2D;
+using System.Xml.Linq;
 
 
 namespace HelloEmgu1._5
@@ -28,6 +32,9 @@ namespace HelloEmgu1._5
         int sMax, vMax, sMax2, vMax2 = 255; // setting the max values of saturation, and value.
         int hMax, hMax2 = 179;// setting the min values of  hue
         bool runFlag = false;
+        bool calFlag = false;
+        int leftMotorOffset = 0;
+        int rightMotorOffset = 0;
 
         public Form1()
         {
@@ -39,7 +46,7 @@ namespace HelloEmgu1._5
             _capture = new VideoCapture(0);// changing the arg to a different number will change the video signal. 
             _captureThread = new Thread(Displaywebcam);
             _captureThread.Start();
-            
+           
 
             robot = new Robot("COM4");
         }
@@ -122,6 +129,8 @@ namespace HelloEmgu1._5
 
                 //*****************************************END OF SECOND MERG********************************************//
 
+
+
                 //***************************************************************State change logic *******************************************//
 
                 if (runFlag)
@@ -132,15 +141,15 @@ namespace HelloEmgu1._5
                         //Thread.Sleep(100);// pausing the thread by 100 ms.
                         robot.Move('W');// Slow forward
                     }
-                    else if(yellowLine.Cent <= yellowLine.IL)
+                    else if (yellowLine.Cent <= yellowLine.IL)
                     {
                         robot.Move('R');//soft right
                     }
-                    else if(yellowLine.Cent <= yellowLine.IR)
+                    else if (yellowLine.Cent <= yellowLine.IR)
                     {
                         robot.Move('L'); //soft left
                     }
-                    else if(yellowLine.OL >= yellowLine.IL)
+                    else if (yellowLine.OL >= yellowLine.IL)
                     {
                         robot.Move('H');//Hard Right
                     }
@@ -148,10 +157,14 @@ namespace HelloEmgu1._5
                     {
                         robot.Move('T');//Hard Left
                     }
-                    else if(redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
+                    else if (redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
                     {
                         robot.Move('S');//Stop
                     }
+                }
+                else if (calFlag)
+                {
+                    MotorCalibration(yellowLine.Cent,yellowLine.IL,yellowLine.IR,yellowLine.OL,yellowLine.OR);
                 }
                 else robot.Move('S');
 
@@ -238,9 +251,17 @@ namespace HelloEmgu1._5
         {
             runFlag = true;
         }
+        private void SaveOffsets_Click(object sender, EventArgs e)
+        {
+            SaveOffset();
+        }
         private void stopButton_Click(object sender, EventArgs e)
         {
             runFlag = false;
+        }
+        private void LoadOffsets_Click(object sender, EventArgs e)
+        {
+            LoadOffset();
         }
 
         //*****************************************FUNCTIONS BENGIN********************************************//
@@ -254,6 +275,17 @@ namespace HelloEmgu1._5
 
             return frame;
         }
+
+        private void motorCal_Click(object sender, EventArgs e)
+        {
+            calFlag = true; 
+        }
+
+        private void motorcalEnd_Click(object sender, EventArgs e)
+        {
+            calFlag = false;
+        }
+
         private Mat ThresholdCreater(Mat inputFrame)
         {
             Mat frame = inputFrame.Clone();
@@ -354,13 +386,116 @@ namespace HelloEmgu1._5
             return counts;
 
         }
+        private void SaveOffset()
+        {
+            // Create a new StreamWriter object and open the file for writing
+            using (StreamWriter writer = new StreamWriter(@"C:\Users\Bowman\Documents\Programming\GitHub\HelloEmgu1.5\OffSets.txt"))
+            {
+
+                //int hMin, sMin, vMin, hMin2, sMin2, vMin2
+                // Write the text to the file
+                writer.WriteLine(hMin);
+                writer.WriteLine(hMax);
+                writer.WriteLine(sMin);
+                writer.WriteLine(sMax);
+                writer.WriteLine(vMin);
+                writer.WriteLine(vMax);
+
+                writer.WriteLine(hMin2);
+                writer.WriteLine(hMax2);
+                writer.WriteLine(sMin2);
+                writer.WriteLine(sMax2);
+                writer.WriteLine(vMin2);
+                writer.WriteLine(vMax2);
+
+                writer.WriteLine(leftMotorOffset);
+                writer.WriteLine(rightMotorOffset);
+            }
+        }
+        private void LoadOffset()
+        {
+            string line;
+
+            using (StreamReader reader = new StreamReader(@"C:\Users\Bowman\Documents\Programming\GitHub\HelloEmgu1.5\OffSets.txt"))
+            {
+
+                line = reader.ReadLine();
+                hTrackBarMin.Value = int.Parse(line);
+                hMin = int.Parse(line);
+                hMinLabel.Text = $"{hMin}";
+
+                line = reader.ReadLine();
+                hTrackBarMax.Value = int.Parse(line);
+                hMaxLabel.Text = $"{hMax}";
+                line = reader.ReadLine();
+                sTrackBarMin.Value = int.Parse(line);
+                sMinLabel.Text = $"{sMin}";
+                line = reader.ReadLine();
+                sTrackBarMax.Value = int.Parse(line);
+                sMaxLabel.Text = $"{sMax}";
+                line = reader.ReadLine();
+                vTrackBarMin.Value = int.Parse(line);
+                vMinLabel.Text = $"{vMin}";
+                line = reader.ReadLine();
+                vTrackBarMax.Value = int.Parse(line);
+                vMaxLabel.Text = $"{vMax}";
+
+                line = reader.ReadLine();
+                hTrackBarMin2.Value = int.Parse(line);
+                hMinLabel2.Text = $"{hMin2}";
+                line = reader.ReadLine();
+                hTrackBarMax2.Value = int.Parse(line);
+                hMaxLabel2.Text = $"{hMax2}";
+                line = reader.ReadLine();
+                sTrackBarMin2.Value = int.Parse(line);
+                sMinLabel2.Text = $"{sMin2}";
+                line = reader.ReadLine();
+                sTrackBarMax2.Value = int.Parse(line);
+                sMaxLabel2.Text = $"{sMax2}";
+                line = reader.ReadLine();
+                vTrackBarMin2.Value = int.Parse(line);
+                vMinLabel2.Text = $"{vMin2}";
+                line = reader.ReadLine();
+                vTrackBarMax2.Value = int.Parse(line);
+                vMinLabel2.Text = $"{vMax2}";
+
+                line = reader.ReadLine();
+                leftMotorOffset = int.Parse(line);
+                line = reader.ReadLine();
+                rightMotorOffset = int.Parse(line);
+
+
+            }
+        }
+        public void MotorCalibration(int yellowLineCent,int yellowLineIL, int yellowLineIR, int yellowLineOL, int yellowLineOR)
+        {
+
+            robot.Move('W');
+
+            if(yellowLineCent < yellowLineIL)
+            {
+                leftMotorOffset++;
+                robot.Move('S');
+
+                calFlag = false;
+            }
+            else if (yellowLineCent < yellowLineIR)
+            {
+                rightMotorOffset++;
+                robot.Move('S');
+                calFlag = false;
+            }
+
+
+
+        }
 
         //*****************************************FUNCTIONS/CLASSES END********************************************//
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            SaveOffset();
             robot.Move('S');
-           
             _captureThread.Abort();
             
         }
@@ -377,6 +512,7 @@ namespace HelloEmgu1._5
 
 
         }
+       
     }
 
 }
