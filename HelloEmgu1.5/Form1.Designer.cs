@@ -98,8 +98,10 @@
             this.binaryImageOR = new System.Windows.Forms.Label();
             this.SaveOffsets = new System.Windows.Forms.Button();
             this.LoadOffsets = new System.Windows.Forms.Button();
-            this.motorCal = new System.Windows.Forms.Button();
-            this.motorcalEnd = new System.Windows.Forms.Button();
+            this.TrimLeftUp = new System.Windows.Forms.Button();
+            this.TrimLeftDown = new System.Windows.Forms.Button();
+            this.TrimRightUp = new System.Windows.Forms.Button();
+            this.TrimRightDown = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.emguPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.hPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBarMin)).BeginInit();
@@ -752,33 +754,55 @@
             this.LoadOffsets.UseVisualStyleBackColor = true;
             this.LoadOffsets.Click += new System.EventHandler(this.LoadOffsets_Click);
             // 
-            // motorCal
+            // TrimLeftUp
             // 
-            this.motorCal.Location = new System.Drawing.Point(477, 1164);
-            this.motorCal.Name = "motorCal";
-            this.motorCal.Size = new System.Drawing.Size(371, 73);
-            this.motorCal.TabIndex = 70;
-            this.motorCal.Text = "Motor Cal Start";
-            this.motorCal.UseVisualStyleBackColor = true;
-            this.motorCal.Click += new System.EventHandler(this.motorCal_Click);
+            this.TrimLeftUp.Location = new System.Drawing.Point(510, 1099);
+            this.TrimLeftUp.Name = "TrimLeftUp";
+            this.TrimLeftUp.Size = new System.Drawing.Size(208, 61);
+            this.TrimLeftUp.TabIndex = 70;
+            this.TrimLeftUp.Text = "TrimLeftUp";
+            this.TrimLeftUp.UseVisualStyleBackColor = true;
+            this.TrimLeftUp.Click += new System.EventHandler(this.TrimLeftUp_Click);
             // 
-            // motorcalEnd
+            // TrimLeftDown
             // 
-            this.motorcalEnd.Location = new System.Drawing.Point(865, 1169);
-            this.motorcalEnd.Name = "motorcalEnd";
-            this.motorcalEnd.Size = new System.Drawing.Size(286, 68);
-            this.motorcalEnd.TabIndex = 71;
-            this.motorcalEnd.Text = "Motor Cal End";
-            this.motorcalEnd.UseVisualStyleBackColor = true;
-            this.motorcalEnd.Click += new System.EventHandler(this.motorcalEnd_Click);
+            this.TrimLeftDown.Location = new System.Drawing.Point(512, 1166);
+            this.TrimLeftDown.Name = "TrimLeftDown";
+            this.TrimLeftDown.Size = new System.Drawing.Size(206, 71);
+            this.TrimLeftDown.TabIndex = 71;
+            this.TrimLeftDown.Text = "TrimLeftDown";
+            this.TrimLeftDown.UseVisualStyleBackColor = true;
+            this.TrimLeftDown.Click += new System.EventHandler(this.TrimLeftDown_Click);
+            // 
+            // TrimRightUp
+            // 
+            this.TrimRightUp.Location = new System.Drawing.Point(736, 1099);
+            this.TrimRightUp.Name = "TrimRightUp";
+            this.TrimRightUp.Size = new System.Drawing.Size(230, 61);
+            this.TrimRightUp.TabIndex = 72;
+            this.TrimRightUp.Text = "TrimRightUp";
+            this.TrimRightUp.UseVisualStyleBackColor = true;
+            this.TrimRightUp.Click += new System.EventHandler(this.TrimRightUp_Click);
+            // 
+            // TrimRightDown
+            // 
+            this.TrimRightDown.Location = new System.Drawing.Point(736, 1166);
+            this.TrimRightDown.Name = "TrimRightDown";
+            this.TrimRightDown.Size = new System.Drawing.Size(230, 71);
+            this.TrimRightDown.TabIndex = 73;
+            this.TrimRightDown.Text = "TrimRightDown";
+            this.TrimRightDown.UseVisualStyleBackColor = true;
+            this.TrimRightDown.Click += new System.EventHandler(this.TrimRightDown_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2866, 1298);
-            this.Controls.Add(this.motorcalEnd);
-            this.Controls.Add(this.motorCal);
+            this.Controls.Add(this.TrimRightDown);
+            this.Controls.Add(this.TrimRightUp);
+            this.Controls.Add(this.TrimLeftDown);
+            this.Controls.Add(this.TrimLeftUp);
             this.Controls.Add(this.LoadOffsets);
             this.Controls.Add(this.SaveOffsets);
             this.Controls.Add(this.binaryImageOR);
@@ -953,8 +977,10 @@
         private System.Windows.Forms.Label binaryImageOR;
         private System.Windows.Forms.Button SaveOffsets;
         private System.Windows.Forms.Button LoadOffsets;
-        private System.Windows.Forms.Button motorCal;
-        private System.Windows.Forms.Button motorcalEnd;
+        private System.Windows.Forms.Button TrimLeftUp;
+        private System.Windows.Forms.Button TrimLeftDown;
+        private System.Windows.Forms.Button TrimRightUp;
+        private System.Windows.Forms.Button TrimRightDown;
     }
 }
 

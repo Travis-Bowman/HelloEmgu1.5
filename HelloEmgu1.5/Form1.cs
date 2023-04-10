@@ -53,79 +53,79 @@ namespace HelloEmgu1._5
 
         private void Displaywebcam()
         {
-           
-
-             while (_capture.IsOpened)
-             {
-
-                    //frame maint
-                    Mat frame = _capture.QueryFrame();
-                    //resize
-                    frame = ResizeFrame(frame);
-                    //display the image in the pichtureBox
-                    emguPictureBox.Image = frame.ToBitmap();
-                    //Creating HSV frame
-                    Mat hsvFrame = new Mat();
-                    CvInvoke.CvtColor(frame, hsvFrame, Emgu.CV.CvEnum.ColorConversion.Bgr2Hsv);
-
-                    frame = DilationThenErosion(frame);
-                    frame = ErosionThenDilation(frame);
-
-                    frame = ThresholdCreater(frame);
-                    BinaryPictureBox.Image = frame.ToBitmap();
-                    var binaryLine = Slicing(frame, binaryImageOL, binaryImageIL, binaryImageCent, binaryImageIR, binaryImageOR);
-
-                    //Creating HSV Channels
-                    Mat[] hsvChannels = hsvFrame.Split();
-
-                    //*****************************************BEGIN OF FIRST MERG********************************************//
-                    Mat hueFilter = new Mat();
-                    CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin), new ScalarArray(hMax), hueFilter);
-                    Invoke(new Action(() => { hPictureBox.Image = hueFilter.ToBitmap(); }));
-
-                    Mat saturationFilter = new Mat();
-                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin), new ScalarArray(sMax), saturationFilter);
-                    Invoke(new Action(() => { sPictureBox.Image = saturationFilter.ToBitmap(); }));
-
-                    Mat valueFilter = new Mat();
-                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin), new ScalarArray(vMax), valueFilter);
-                    Invoke(new Action(() => { vPictureBox.Image = valueFilter.ToBitmap(); }));
-
-                    Mat mergedImage = new Mat();
-                    CvInvoke.BitwiseAnd(hueFilter, saturationFilter, mergedImage);
-                    CvInvoke.BitwiseAnd(mergedImage, valueFilter, mergedImage);
-
-                    mergedImage = DilationThenErosion(mergedImage);
-                    mergedImage = ErosionThenDilation(mergedImage);
-
-                    Invoke(new Action(() => { mergedPictureBox.Image = mergedImage.ToBitmap(); }));
-                    var yellowLine = Slicing(mergedImage, mergedImageOL, mergedImageIL, mergedImageCent, mergedImageIR, mergedImageOR);
 
 
-                    //*****************************************END OF FIRST MERG********************************************//
+            while (_capture.IsOpened)
+            {
 
-                    //*****************************************BEGIN OF SECOND MERG********************************************//
-                    Mat hueFilter2 = new Mat();
-                    CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin2), new ScalarArray(hMax2), hueFilter2);
-                    Invoke(new Action(() => { hPictureBox2.Image = hueFilter2.ToBitmap(); }));
+                //frame maint
+                Mat frame = _capture.QueryFrame();
+                //resize
+                frame = ResizeFrame(frame);
+                //display the image in the pichtureBox
+                emguPictureBox.Image = frame.ToBitmap();
+                //Creating HSV frame
+                Mat hsvFrame = new Mat();
+                CvInvoke.CvtColor(frame, hsvFrame, Emgu.CV.CvEnum.ColorConversion.Bgr2Hsv);
 
-                    Mat saturationFilter2 = new Mat();
-                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin2), new ScalarArray(sMax2), saturationFilter2);
-                    Invoke(new Action(() => { sPictureBox2.Image = saturationFilter2.ToBitmap(); }));
+                frame = DilationThenErosion(frame);
+                frame = ErosionThenDilation(frame);
 
-                    Mat valueFilter2 = new Mat();
-                    CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin2), new ScalarArray(vMax2), valueFilter2);
-                    Invoke(new Action(() => { vPictureBox2.Image = valueFilter2.ToBitmap(); }));
+                frame = ThresholdCreater(frame);
+                BinaryPictureBox.Image = frame.ToBitmap();
+                var binaryLine = Slicing(frame, binaryImageOL, binaryImageIL, binaryImageCent, binaryImageIR, binaryImageOR);
 
-                    Mat mergedImage2 = new Mat();
-                    CvInvoke.BitwiseAnd(hueFilter2, saturationFilter2, mergedImage2);
-                    CvInvoke.BitwiseAnd(mergedImage2, valueFilter2, mergedImage2);
+                //Creating HSV Channels
+                Mat[] hsvChannels = hsvFrame.Split();
 
-                    mergedImage2 = DilationThenErosion(mergedImage2);
-                    mergedImage2 = ErosionThenDilation(mergedImage2);
+                //*****************************************BEGIN OF FIRST MERG********************************************//
+                Mat hueFilter = new Mat();
+                CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin), new ScalarArray(hMax), hueFilter);
+                Invoke(new Action(() => { hPictureBox.Image = hueFilter.ToBitmap(); }));
 
-                    Invoke(new Action(() => { mergedPictureBox2.Image = mergedImage2.ToBitmap(); }));
-                    var redLine = Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
+                Mat saturationFilter = new Mat();
+                CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin), new ScalarArray(sMax), saturationFilter);
+                Invoke(new Action(() => { sPictureBox.Image = saturationFilter.ToBitmap(); }));
+
+                Mat valueFilter = new Mat();
+                CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin), new ScalarArray(vMax), valueFilter);
+                Invoke(new Action(() => { vPictureBox.Image = valueFilter.ToBitmap(); }));
+
+                Mat mergedImage = new Mat();
+                CvInvoke.BitwiseAnd(hueFilter, saturationFilter, mergedImage);
+                CvInvoke.BitwiseAnd(mergedImage, valueFilter, mergedImage);
+
+                mergedImage = DilationThenErosion(mergedImage);
+                mergedImage = ErosionThenDilation(mergedImage);
+
+                Invoke(new Action(() => { mergedPictureBox.Image = mergedImage.ToBitmap(); }));
+                var yellowLine = Slicing(mergedImage, mergedImageOL, mergedImageIL, mergedImageCent, mergedImageIR, mergedImageOR);
+
+
+                //*****************************************END OF FIRST MERG********************************************//
+
+                //*****************************************BEGIN OF SECOND MERG********************************************//
+                Mat hueFilter2 = new Mat();
+                CvInvoke.InRange(hsvChannels[0], new ScalarArray(hMin2), new ScalarArray(hMax2), hueFilter2);
+                Invoke(new Action(() => { hPictureBox2.Image = hueFilter2.ToBitmap(); }));
+
+                Mat saturationFilter2 = new Mat();
+                CvInvoke.InRange(hsvChannels[1], new ScalarArray(sMin2), new ScalarArray(sMax2), saturationFilter2);
+                Invoke(new Action(() => { sPictureBox2.Image = saturationFilter2.ToBitmap(); }));
+
+                Mat valueFilter2 = new Mat();
+                CvInvoke.InRange(hsvChannels[1], new ScalarArray(vMin2), new ScalarArray(vMax2), valueFilter2);
+                Invoke(new Action(() => { vPictureBox2.Image = valueFilter2.ToBitmap(); }));
+
+                Mat mergedImage2 = new Mat();
+                CvInvoke.BitwiseAnd(hueFilter2, saturationFilter2, mergedImage2);
+                CvInvoke.BitwiseAnd(mergedImage2, valueFilter2, mergedImage2);
+
+                mergedImage2 = DilationThenErosion(mergedImage2);
+                mergedImage2 = ErosionThenDilation(mergedImage2);
+
+                Invoke(new Action(() => { mergedPictureBox2.Image = mergedImage2.ToBitmap(); }));
+                var redLine = Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
 
                 //*****************************************END OF SECOND MERG********************************************//
 
@@ -162,17 +162,8 @@ namespace HelloEmgu1._5
                         robot.Move('S');//Stop
                     }
                 }
-                else if (calFlag)
-                {
-                    MotorCalibration(yellowLine.Cent,yellowLine.IL,yellowLine.IR,yellowLine.OL,yellowLine.OR);
-                }
                 else robot.Move('S');
-
-
-             }
-
-            
-
+            }
         }
 
         //*****************************************TRACKBARS********************************************//
@@ -276,14 +267,24 @@ namespace HelloEmgu1._5
             return frame;
         }
 
-        private void motorCal_Click(object sender, EventArgs e)
+        private void TrimLeftDown_Click(object sender, EventArgs e)
         {
-            calFlag = true; 
+            robot.Move('1');
         }
 
-        private void motorcalEnd_Click(object sender, EventArgs e)
+        private void TrimRightUp_Click(object sender, EventArgs e)
         {
-            calFlag = false;
+            robot.Move('4');
+        }
+
+        private void TrimRightDown_Click(object sender, EventArgs e)
+        {
+            robot.Move('3');
+        }
+
+        private void TrimLeftUp_Click(object sender, EventArgs e)
+        {
+            robot.Move('2');
         }
 
         private Mat ThresholdCreater(Mat inputFrame)
@@ -467,34 +468,17 @@ namespace HelloEmgu1._5
 
             }
         }
-        public void MotorCalibration(int yellowLineCent,int yellowLineIL, int yellowLineIR, int yellowLineOL, int yellowLineOR)
-        {
-
-            robot.Move('W');
-
-            if(yellowLineCent < yellowLineIL)
-            {
-                leftMotorOffset++;
-                robot.Move('S');
-
-                calFlag = false;
-            }
-            else if (yellowLineCent < yellowLineIR)
-            {
-                rightMotorOffset++;
-                robot.Move('S');
-                calFlag = false;
-            }
+        
 
 
 
-        }
+        
 
         //*****************************************FUNCTIONS/CLASSES END********************************************//
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SaveOffset();
+            
             robot.Move('S');
             _captureThread.Abort();
             
