@@ -253,7 +253,40 @@ namespace HelloEmgu1._5
         private void LoadOffsets_Click(object sender, EventArgs e)
         {
             LoadOffset();
+
+            for(int i = 0; i < leftMotorOffset; i++)
+            {
+                robot.Move('2');
+            }
+            for (int i = 0; i < rightMotorOffset; i++)
+            {
+                robot.Move('4');
+            }
         }
+        //****************Motor Speed Trim ****************************//
+        private void TrimLeftDown_Click(object sender, EventArgs e)
+        {
+            robot.Move('1');
+            if (leftMotorOffset - 1 < 0)
+            leftMotorOffset--;
+        }
+        private void TrimRightUp_Click(object sender, EventArgs e)
+        {
+            robot.Move('4');
+            rightMotorOffset++;
+        }
+        private void TrimRightDown_Click(object sender, EventArgs e)
+        {
+            robot.Move('3');
+            if(rightMotorOffset - 1 < 0)
+            rightMotorOffset--;
+        }
+        private void TrimLeftUp_Click(object sender, EventArgs e)
+        {
+            robot.Move('2');
+            leftMotorOffset++;
+        }
+
 
         //*****************************************FUNCTIONS BENGIN********************************************//
         private Mat ResizeFrame(Mat inputFrame)
@@ -266,27 +299,6 @@ namespace HelloEmgu1._5
 
             return frame;
         }
-
-        private void TrimLeftDown_Click(object sender, EventArgs e)
-        {
-            robot.Move('1');
-        }
-
-        private void TrimRightUp_Click(object sender, EventArgs e)
-        {
-            robot.Move('4');
-        }
-
-        private void TrimRightDown_Click(object sender, EventArgs e)
-        {
-            robot.Move('3');
-        }
-
-        private void TrimLeftUp_Click(object sender, EventArgs e)
-        {
-            robot.Move('2');
-        }
-
         private Mat ThresholdCreater(Mat inputFrame)
         {
             Mat frame = inputFrame.Clone();
@@ -419,61 +431,64 @@ namespace HelloEmgu1._5
 
             using (StreamReader reader = new StreamReader(@"C:\Users\Bowman\Documents\Programming\GitHub\HelloEmgu1.5\OffSets.txt"))
             {
-
-                line = reader.ReadLine();
-                hTrackBarMin.Value = int.Parse(line);
-                hMin = int.Parse(line);
+                hMin = int.Parse(reader.ReadLine());
+                hTrackBarMin.Value = hMin;
                 hMinLabel.Text = $"{hMin}";
 
-                line = reader.ReadLine();
-                hTrackBarMax.Value = int.Parse(line);
+                hMax = int.Parse(reader.ReadLine());
+                hTrackBarMax2.Value = hMax;
                 hMaxLabel.Text = $"{hMax}";
-                line = reader.ReadLine();
-                sTrackBarMin.Value = int.Parse(line);
+
+                sMin = int.Parse(reader.ReadLine());
+                sTrackBarMin2.Value = sMin;
                 sMinLabel.Text = $"{sMin}";
-                line = reader.ReadLine();
-                sTrackBarMax.Value = int.Parse(line);
-                sMaxLabel.Text = $"{sMax}";
-                line = reader.ReadLine();
-                vTrackBarMin.Value = int.Parse(line);
+
+                sMax = int.Parse(reader.ReadLine());
+                sTrackBarMax.Value = sMax;
+                sMaxLabel2.Text = $"{sMax}";
+
+                vMin = int.Parse(reader.ReadLine());
+                vTrackBarMin.Value = vMin;
                 vMinLabel.Text = $"{vMin}";
-                line = reader.ReadLine();
-                vTrackBarMax.Value = int.Parse(line);
-                vMaxLabel.Text = $"{vMax}";
 
-                line = reader.ReadLine();
-                hTrackBarMin2.Value = int.Parse(line);
+                vMax = int.Parse(reader.ReadLine());
+                vTrackBarMax2.Value = vMax;
+                vMaxLabel2.Text = $"{vMax}";
+
+//****************************************************************//
+                hMin2 = int.Parse(reader.ReadLine());
+                hTrackBarMin2.Value = hMin2;
                 hMinLabel2.Text = $"{hMin2}";
-                line = reader.ReadLine();
-                hTrackBarMax2.Value = int.Parse(line);
-                hMaxLabel2.Text = $"{hMax2}";
-                line = reader.ReadLine();
-                sTrackBarMin2.Value = int.Parse(line);
-                sMinLabel2.Text = $"{sMin2}";
-                line = reader.ReadLine();
-                sTrackBarMax2.Value = int.Parse(line);
-                sMaxLabel2.Text = $"{sMax2}";
-                line = reader.ReadLine();
-                vTrackBarMin2.Value = int.Parse(line);
-                vMinLabel2.Text = $"{vMin2}";
-                line = reader.ReadLine();
-                vTrackBarMax2.Value = int.Parse(line);
-                vMinLabel2.Text = $"{vMax2}";
 
+                hMax2 = int.Parse(reader.ReadLine());
+                hTrackBarMax2.Value = hMax2;
+                hMaxLabel2.Text = $"{hMax2}";
+
+                sMin2 = int.Parse(reader.ReadLine());
+                sTrackBarMin2.Value = sMin2;
+                sMinLabel2.Text = $"{sMin2}";
+
+                sMax2 = int.Parse(reader.ReadLine());
+                sTrackBarMax2.Value = sMax2;
+                sMaxLabel2.Text = $"{sMax2}";
+
+                vMin2 = int.Parse(reader.ReadLine());
+                vTrackBarMin2.Value = vMin2;
+                vMinLabel2.Text = $"{vMin2}";
+
+                vMax2 = int.Parse(reader.ReadLine());
+                vTrackBarMax2.Value = vMax2;
+                vMaxLabel2.Text = $"{vMax2}";
+
+//**************************************************************//
                 line = reader.ReadLine();
                 leftMotorOffset = int.Parse(line);
                 line = reader.ReadLine();
                 rightMotorOffset = int.Parse(line);
 
-
             }
         }
         
-
-
-
-        
-
         //*****************************************FUNCTIONS/CLASSES END********************************************//
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
