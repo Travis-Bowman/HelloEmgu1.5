@@ -149,15 +149,17 @@ namespace HelloEmgu1._5
                     {
                         robot.Move('L'); //soft left
                     }
-                    else if (yellowLine.OL >= yellowLine.IL)
+                    else if (yellowLine.IL < yellowLine.OL)
                     {
                         robot.Move('H');//Hard Right
                     }
-                    else if (yellowLine.OR >= yellowLine.IR)
+                    else if (yellowLine.IR < yellowLine.OR)
                     {
                         robot.Move('T');//Hard Left
                     }
-                    else if (redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
+
+
+                    if (redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
                     {
                         robot.Move('S');//Stop
                     }
@@ -490,7 +492,6 @@ namespace HelloEmgu1._5
         }
         
         //*****************************************FUNCTIONS/CLASSES END********************************************//
-
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             
