@@ -1,22 +1,11 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
-using Microsoft.Win32.SafeHandles;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO.Ports;
-using System.Runtime.InteropServices;
 using System.IO;
 using static System.Net.Mime.MediaTypeNames;
-using Emgu.CV.Features2D;
-using System.Xml.Linq;
 
 
 namespace HelloEmgu1._5
@@ -32,10 +21,12 @@ namespace HelloEmgu1._5
         int sMax, vMax, sMax2, vMax2 = 255; // setting the max values of saturation, and value.
         int hMax, hMax2 = 179;// setting the min values of  hue
         bool runFlag = false;
-        bool calFlag = false;
         int leftMotorOffset = 0;
         int rightMotorOffset = 0;
-        int stateFlag = 0;
+        int kernalVal = 45;
+
+        
+
 
         public Form1()
         {
@@ -98,6 +89,7 @@ namespace HelloEmgu1._5
 
                 mergedImage = DilationThenErosion(mergedImage);
                 mergedImage = ErosionThenDilation(mergedImage);
+                mergedImage = GaussianBlur(mergedImage);
 
                 Invoke(new Action(() => { mergedPictureBox.Image = mergedImage.ToBitmap(); }));
                 var yellowLine = Slicing(mergedImage, mergedImageOL, mergedImageIL, mergedImageCent, mergedImageIR, mergedImageOR);
@@ -124,6 +116,7 @@ namespace HelloEmgu1._5
 
                 mergedImage2 = DilationThenErosion(mergedImage2);
                 mergedImage2 = ErosionThenDilation(mergedImage2);
+                mergedImage = GaussianBlur(mergedImage2);
 
                 Invoke(new Action(() => { mergedPictureBox2.Image = mergedImage2.ToBitmap(); }));
                 var redLine = Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
@@ -134,43 +127,39 @@ namespace HelloEmgu1._5
 
                 //***************************************************************State change logic *******************************************//
 
+                int[] sliceArray = { yellowLine.Cent, yellowLine.IL, yellowLine.IR, yellowLine.OL, yellowLine.OR, redLine.Cent };
+                int largestSlice = sliceArray[0];
+                int moveCommand = 0;
+
+                // this for loop will select the largest element of the array to be used in the switch statement
+                for (int i = 1; i < sliceArray.Length; i++)
+                {
+                    if (sliceArray[i] > largestSlice)
+                    {
+                        largestSlice = sliceArray[i];
+                        moveCommand = i; // saving the largest index place.
+                    }
+                }
+
                 if (runFlag)
                 {
-
-                    if (yellowLine.Cent >= yellowLine.IL && yellowLine.Cent >= yellowLine.IR)
+                    switch (moveCommand)
                     {
-                        //Thread.Sleep(100);// pausing the thread by 100 ms.
-                        robot.Move('W');// Slow forward
+                        case 0: robot.Move('W');// SLOW_FORWARD
+                            break;
+                        case 1: robot.Move('R');// SOFT_RIGHT
+                            break;
+                        case 2: robot.Move('L');// SOFT_LEFT
+                            break;
+                        case 3: robot.Move('H');// HARD_RIGHT
+                            break;
+                        case 4: robot.Move('T');// HARD_LEFT
+                            break;
+                        case 5: robot.Move('S');// STOP
+                            break;
                     }
-                    else if (yellowLine.Cent <= yellowLine.IL)
-                    {
-                        robot.Move('R');//soft right
-
-                    }
-                    else if (yellowLine.IL < yellowLine.OL)
-                    {
-                        robot.Move('H');//Hard Right
-                    }
-                    else if (yellowLine.Cent <= yellowLine.IR)
-                    {
-                        robot.Move('L'); //soft left
-
-                    }
-                    else if (yellowLine.IR < yellowLine.OR)
-                    {
-                        robot.Move('T');//Hard Left
-                    }
-                    else robot.Move('S');
-
-
-
-
-                    //if (redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
-                    //{
-                    //    robot.Move('S');//Stop
-                    //}
                 }
-                else robot.Move('S');
+                else robot.Move('S'); // STOP
             }
         }
 
@@ -250,14 +239,6 @@ namespace HelloEmgu1._5
         {
             runFlag = true;
         }
-        private void SaveOffsets_Click(object sender, EventArgs e)
-        {
-            SaveOffset();
-        }
-        private void stopButton_Click(object sender, EventArgs e)
-        {
-            runFlag = false;
-        }
         private void LoadOffsets_Click(object sender, EventArgs e)
         {
             LoadOffset();
@@ -271,6 +252,16 @@ namespace HelloEmgu1._5
                 robot.Move('4');
             }
         }
+        //**************** Load/save offsets **************************//
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            runFlag = false;
+        }
+        private void SaveOffsets_Click(object sender, EventArgs e)
+        {
+            SaveOffset();
+        }
+
         //****************Motor Speed Trim ****************************//
         private void TrimLeftDown_Click(object sender, EventArgs e)
         {
@@ -338,6 +329,12 @@ namespace HelloEmgu1._5
             CvInvoke.Dilate(Frame, Frame, kernel, new Point(1, 1), 1, Emgu.CV.CvEnum.BorderType.Default, new Emgu.CV.Structure.MCvScalar());
 
             return Frame;
+        }
+        private Mat GaussianBlur(Mat inputFrame)
+        {
+            Mat frame = inputFrame.Clone();
+            CvInvoke.GaussianBlur(frame, frame, new Size(kernalVal, kernalVal), 0);
+            return frame;
         }
         private PixCount Slicing(Mat inputFrame, Label OL, Label IL, Label Cent, Label IR, Label OR)
         {
