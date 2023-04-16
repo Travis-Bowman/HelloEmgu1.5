@@ -35,6 +35,7 @@ namespace HelloEmgu1._5
         bool calFlag = false;
         int leftMotorOffset = 0;
         int rightMotorOffset = 0;
+        int stateFlag = 0;
 
         public Form1()
         {
@@ -144,25 +145,30 @@ namespace HelloEmgu1._5
                     else if (yellowLine.Cent <= yellowLine.IL)
                     {
                         robot.Move('R');//soft right
-                    }
-                    else if (yellowLine.Cent <= yellowLine.IR)
-                    {
-                        robot.Move('L'); //soft left
+
                     }
                     else if (yellowLine.IL < yellowLine.OL)
                     {
                         robot.Move('H');//Hard Right
                     }
+                    else if (yellowLine.Cent <= yellowLine.IR)
+                    {
+                        robot.Move('L'); //soft left
+
+                    }
                     else if (yellowLine.IR < yellowLine.OR)
                     {
                         robot.Move('T');//Hard Left
                     }
+                    else robot.Move('S');
 
 
-                    if (redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
-                    {
-                        robot.Move('S');//Stop
-                    }
+
+
+                    //if (redLine.Cent + redLine.IL + redLine.IR > yellowLine.Cent)
+                    //{
+                    //    robot.Move('S');//Stop
+                    //}
                 }
                 else robot.Move('S');
             }
