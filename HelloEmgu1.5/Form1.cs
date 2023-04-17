@@ -23,10 +23,7 @@ namespace HelloEmgu1._5
         bool runFlag = false;
         int leftMotorOffset = 0;
         int rightMotorOffset = 0;
-        int kernalVal = 45;
-
-        
-
+        static int kernalVal = 45;
 
         public Form1()
         {
@@ -39,7 +36,6 @@ namespace HelloEmgu1._5
             _captureThread = new Thread(Displaywebcam);
             _captureThread.Start();
            
-
             robot = new Robot("COM4");
         }
 
@@ -285,7 +281,6 @@ namespace HelloEmgu1._5
             robot.Move('2');
             leftMotorOffset++;
         }
-
 
         //*****************************************FUNCTIONS BENGIN********************************************//
         private Mat ResizeFrame(Mat inputFrame)
