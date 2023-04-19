@@ -6,6 +6,8 @@ using System.Threading;
 using System.Windows.Forms;
 using System.IO;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.AxHost;
+
 
 
 namespace HelloEmgu1._5
@@ -23,7 +25,10 @@ namespace HelloEmgu1._5
         bool runFlag = false;
         int leftMotorOffset = 0;
         int rightMotorOffset = 0;
-        static int kernalVal = 45;
+
+
+
+        static int kernalVal = 5;
 
         public Form1()
         {
@@ -32,7 +37,7 @@ namespace HelloEmgu1._5
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _capture = new VideoCapture(0);// changing the arg to a different number will change the video signal. 
+            _capture = new VideoCapture(1);// changing the arg to a different number will change the video signal. 
             _captureThread = new Thread(Displaywebcam);
             _captureThread.Start();
            
@@ -141,19 +146,28 @@ namespace HelloEmgu1._5
                 {
                     switch (moveCommand)
                     {
-                        case 0: robot.Move('W');// SLOW_FORWARD
+                        case 0:
+                            robot.Move('W');// SLOW_FORWARD
                             break;
-                        case 1: robot.Move('R');// SOFT_RIGHT
+                        case 1:
+                            robot.Move('R');// SOFT_RIGHT
                             break;
-                        case 2: robot.Move('L');// SOFT_LEFT
+                        case 2:
+                            robot.Move('L');// SOFT_LEFT
                             break;
-                        case 3: robot.Move('H');// HARD_RIGHT
+                        case 3:
+                            robot.Move('H');// HARD_RIGHT
                             break;
-                        case 4: robot.Move('T');// HARD_LEFT
+                        case 4:
+                            robot.Move('T');// HARD_LEFT
                             break;
-                        case 5: robot.Move('S');// STOP
+                        case 5:
+                            robot.Move('S');// STOP
                             break;
                     }
+
+
+
                 }
                 else robot.Move('S'); // STOP
             }
