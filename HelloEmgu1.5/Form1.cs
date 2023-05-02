@@ -5,8 +5,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using System.IO;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Windows.Forms.AxHost;
+
 
 
 
@@ -26,9 +25,7 @@ namespace HelloEmgu1._5
         int leftMotorOffset = 0;
         int rightMotorOffset = 0;
 
-
-
-        static int kernalVal = 5;
+        static int kernalVal = 5; //used in the GaussianBlur function 
 
         public Form1()
         {
@@ -37,16 +34,15 @@ namespace HelloEmgu1._5
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _capture = new VideoCapture(1);// changing the arg to a different number will change the video signal. 
+            _capture = new VideoCapture(0);// changing the arg to a different number will change the video signal. Slecting one will put it out to a webcam. 
             _captureThread = new Thread(Displaywebcam);
             _captureThread.Start();
            
-            robot = new Robot("COM4");
+            robot = new Robot("COM4");// creating the class from the Robot.cs file. This is setting up the comm port. 
         }
 
         private void Displaywebcam()
         {
-
 
             while (_capture.IsOpened)
             {
@@ -117,57 +113,57 @@ namespace HelloEmgu1._5
 
                 mergedImage2 = DilationThenErosion(mergedImage2);
                 mergedImage2 = ErosionThenDilation(mergedImage2);
-                mergedImage = GaussianBlur(mergedImage2);
+                //mergedImage = GaussianBlur(mergedImage2);
 
                 Invoke(new Action(() => { mergedPictureBox2.Image = mergedImage2.ToBitmap(); }));
                 var redLine = Slicing(mergedImage2, megedImage2OL, mergedImage2IL, mergedImage2Cent, mergedImage2IR, mergedImage2OR);
 
                 //*****************************************END OF SECOND MERG********************************************//
 
-
-
                 //***************************************************************State change logic *******************************************//
 
-                int[] sliceArray = { yellowLine.Cent, yellowLine.IL, yellowLine.IR, yellowLine.OL, yellowLine.OR, redLine.Cent };
-                int largestSlice = sliceArray[0];
-                int moveCommand = 0;
+               // sliceArray places all the regions of interest into one array to be sorted as the largest. 
+               int[] sliceArray = {yellowLine.Cent,yellowLine.IL,yellowLine.IR, yellowLine.OL, yellowLine.OR, redLine.Cent};
+               int largestSlice = sliceArray[0];
+               int moveCommand = 0;
 
-                // this for loop will select the largest element of the array to be used in the switch statement
-                for (int i = 1; i < sliceArray.Length; i++)
+                for(int i = 1; i < sliceArray.Length; i++)
                 {
                     if (sliceArray[i] > largestSlice)
                     {
                         largestSlice = sliceArray[i];
-                        moveCommand = i; // saving the largest index place.
+                        moveCommand = i;
+                    }    
+                    else if(redLine.Cent + redLine.IL + redLine.IR > largestSlice)
+                    {
+                        Thread.Sleep(500);
+                        moveCommand = 5;
                     }
                 }
-
+                // If the runFlag is true then it will take the current move command and send the pre determinded Char to the lower level to switch the states.
                 if (runFlag)
                 {
                     switch (moveCommand)
                     {
                         case 0:
-                            robot.Move('W');// SLOW_FORWARD
+                            robot.Move('W');// slow forward
                             break;
                         case 1:
-                            robot.Move('R');// SOFT_RIGHT
+                            robot.Move('L');// SOFT left
                             break;
                         case 2:
-                            robot.Move('L');// SOFT_LEFT
+                            robot.Move('R');// soft right
                             break;
                         case 3:
-                            robot.Move('H');// HARD_RIGHT
+                            robot.Move('T');// hard left
                             break;
                         case 4:
-                            robot.Move('T');// HARD_LEFT
+                            robot.Move('H');// hard right
                             break;
                         case 5:
-                            robot.Move('S');// STOP
+                            robot.Move('S');// Stop
                             break;
                     }
-
-
-
                 }
                 else robot.Move('S'); // STOP
             }
@@ -181,6 +177,9 @@ namespace HelloEmgu1._5
         }
 
         //****************************Merg One******************************//
+
+        //These are event handler functions that are called when the values of the corresponding trackbars are changed.
+        //They retrieve the current values of the trackbars and update the corresponding variables(hMin, hMax, sMin, sMax, vMin, vMax)
         private void hTrackBarMin_Scroll(object sender, EventArgs e)
         {
             hMin = hTrackBarMin.Value;
@@ -213,6 +212,9 @@ namespace HelloEmgu1._5
         }
 
         //*****************************Merg Two*****************************//
+
+        //These are event handler functions that are called when the values of the corresponding trackbars are changed.
+        //They retrieve the current values of the trackbars and update the corresponding variables(hMin2, hMax2, sMin2, sMax2, vMin2, vMax2)
         private void hTrackBarMin2_Scroll(object sender, EventArgs e)
         {
             hMin2 = hTrackBarMin2.Value;
@@ -245,15 +247,32 @@ namespace HelloEmgu1._5
         }
 
         //*****************START STOP ************************************//
+
+        //These are event handler functions for button click events in a graphical user interface.
+        //Each button click triggers a specific action related to start/stop
         private void startButton_Click(object sender, EventArgs e)
         {
-            runFlag = true;
+            runFlag = true;// used to start the serial connection between both logic levels
+        }
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            runFlag = false;// used to stop the serial connection between both logic levels
+        }
+
+        //**************** Load/save offsets **************************//
+
+        //These are event handler functions for button click events in a graphical user interface.
+        //Each button click triggers a specific action related to loading and saving HVS calibrated values
+
+        private void SaveOffsets_Click(object sender, EventArgs e)
+        {
+            SaveOffset();// writes the values to the text file.
         }
         private void LoadOffsets_Click(object sender, EventArgs e)
         {
-            LoadOffset();
+            LoadOffset(); //reads the values from the text file.
 
-            for(int i = 0; i < leftMotorOffset; i++)
+            for (int i = 0; i < leftMotorOffset; i++)
             {
                 robot.Move('2');
             }
@@ -262,17 +281,11 @@ namespace HelloEmgu1._5
                 robot.Move('4');
             }
         }
-        //**************** Load/save offsets **************************//
-        private void stopButton_Click(object sender, EventArgs e)
-        {
-            runFlag = false;
-        }
-        private void SaveOffsets_Click(object sender, EventArgs e)
-        {
-            SaveOffset();
-        }
 
         //****************Motor Speed Trim ****************************//
+
+        //These are event handler functions for button click events in a graphical user interface.
+        //Each button click triggers a specific action related to motor trimming
         private void TrimLeftDown_Click(object sender, EventArgs e)
         {
             robot.Move('1');
@@ -299,16 +312,21 @@ namespace HelloEmgu1._5
         //*****************************************FUNCTIONS BENGIN********************************************//
         private Mat ResizeFrame(Mat inputFrame)
         {
+            //this function resizes the the image frame
             Mat frame = inputFrame.Clone();
 
             int newHeight = (frame.Size.Height * emguPictureBox.Size.Width) / frame.Size.Width;
             Size newSize = new Size(emguPictureBox.Size.Width, newHeight);
             CvInvoke.Resize(frame, frame, newSize);
 
-            return frame;
+            return frame;// resized image
         }
         private Mat ThresholdCreater(Mat inputFrame)
         {
+            //The function creates a binary thresholded version of the input frame,
+            //where pixels with values above a certain threshold _threshold are set to 255 (white),
+            //and pixels with values below the threshold are set to 0 (black).
+
             Mat frame = inputFrame.Clone();
 
             //convert to gray
@@ -321,6 +339,7 @@ namespace HelloEmgu1._5
         }
         private Mat DilationThenErosion(Mat inputFrame)
         {
+            // this function uses the dilation and erosion filiter
             Mat Frame = inputFrame.Clone();
 
             Mat kernel = CvInvoke.GetStructuringElement(Emgu.CV.CvEnum.ElementShape.Cross, new Size(3, 3), new Point(1, 1));
@@ -331,6 +350,7 @@ namespace HelloEmgu1._5
         }
         private Mat ErosionThenDilation(Mat inputFrame)
         {
+            // this function uses the dilation and erosion filiter
             Mat Frame = inputFrame.Clone();
 
             Mat kernel = CvInvoke.GetStructuringElement(Emgu.CV.CvEnum.ElementShape.Cross, new Size(3, 3), new Point(1, 1));
@@ -347,6 +367,10 @@ namespace HelloEmgu1._5
         }
         private PixCount Slicing(Mat inputFrame, Label OL, Label IL, Label Cent, Label IR, Label OR)
         {
+
+            //This function starts by creating a copy of the inputFrame called "frame" using the Clone() method of the inputFrame.
+            //Then, it initializes a new instance of a PixCount class to store the pixel counts for different regions of the image.
+
             Mat frame = inputFrame.Clone();
 
             //count the number of white pixels
@@ -441,6 +465,10 @@ namespace HelloEmgu1._5
         }
         private void LoadOffset()
         {
+
+            // The function uses a StreamReader object to read from the file and then parses the values of certain
+            // lines in the file and assigns them to different integer variables.
+
             string line;
 
             using (StreamReader reader = new StreamReader(@"C:\Users\Bowman\Documents\Programming\GitHub\HelloEmgu1.5\OffSets.txt"))
@@ -450,24 +478,24 @@ namespace HelloEmgu1._5
                 hMinLabel.Text = $"{hMin}";
 
                 hMax = int.Parse(reader.ReadLine());
-                hTrackBarMax2.Value = hMax;
+                hTrackBarMax.Value = hMax;
                 hMaxLabel.Text = $"{hMax}";
 
                 sMin = int.Parse(reader.ReadLine());
-                sTrackBarMin2.Value = sMin;
+                sTrackBarMin.Value = sMin;
                 sMinLabel.Text = $"{sMin}";
 
                 sMax = int.Parse(reader.ReadLine());
                 sTrackBarMax.Value = sMax;
-                sMaxLabel2.Text = $"{sMax}";
+                sMaxLabel.Text = $"{sMax}";
 
                 vMin = int.Parse(reader.ReadLine());
                 vTrackBarMin.Value = vMin;
                 vMinLabel.Text = $"{vMin}";
 
                 vMax = int.Parse(reader.ReadLine());
-                vTrackBarMax2.Value = vMax;
-                vMaxLabel2.Text = $"{vMax}";
+                vTrackBarMax.Value = vMax;
+                vMaxLabel.Text = $"{vMax}";
 
 //****************************************************************//
                 hMin2 = int.Parse(reader.ReadLine());
@@ -506,23 +534,22 @@ namespace HelloEmgu1._5
         //*****************************************FUNCTIONS/CLASSES END********************************************//
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+            // When Form 1 is closing it will send a Stop command to the lower logic level, then abourt the captureThread.
             robot.Move('S');
             _captureThread.Abort();
             
         }
 
-        //PixCount class is uses to organized the pixcount of the slices.
         public class PixCount
         {
+            //This class has five integer properties, each representing the pixel count of a specific slice of an image.
+            //The slices are referred to as "OL" (outer left), "IL" (inner left), "Cent" (center), "IR" (inner right), and "OR" (outer right). 
 
             public int OL { get; set; }
             public int IL { get; set; }
             public int Cent { get; set; }
             public int IR { get; set; }
             public int OR { get; set; }
-
-
         }
        
     }

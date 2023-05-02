@@ -553,6 +553,7 @@
             this.hMinLabel2.Size = new System.Drawing.Size(64, 32);
             this.hMinLabel2.TabIndex = 47;
             this.hMinLabel2.Text = "Null";
+          
             // 
             // hMaxLabel2
             // 
